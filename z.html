@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <!-- 🌟 META TAGS ΓΙΑ ΕΝΤΥΠΩΣΙΑΚΗ ΠΡΟΕΠΙΣΚΟΠΙΣΗ (ΦΩΤΟΓΡΑΦΙΑ & ΤΙΤΛΟΣ) ΣΤΟ MESSENGER / VIBER -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="📻 Panagiotis Live Radio Player">
+  <meta property="og:description" content="Ακούστε ζωντανά την καλύτερη μουσική με live chat και video clip!">
+  <meta property="og:image" content="https://xatimg.com/image/3Hzrpugf7ede.png"> <!-- 📸 ΕΔΩ ΒΑΖΕΤΕ ΤΟ LINK ΤΗΣ ΦΩΤΟΓΡΑΦΙΑΣ ΠΟΥ ΘΕΛΕΤΕ ΝΑ ΕΜΦΑΝΙΖΕΤΑΙ -->
+  <meta property="og:url" content="https://panos316radio.blogspot.com/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🇬🇷Panagiotis🇬🇷</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+     * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Kanit', sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: transparent !important;
+    }
+
+    body {
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 6px;
+      position: relative;
+    }
+
+    /* 📱  */
+    .player-card {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      max-width: 380px;
+      height: 100%;
+      background: linear-gradient(160deg, #0b132b 0%, #1c2541 100%); /* */
+      border: 2px solid #00d2ff; /* */
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9),
+                  0 0 20px rgba(0, 210, 255, 0.6),
+                  inset 0 0 10px rgba(0, 210, 255, 0.3);
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: hidden;
+    }
+    /* */
+    .instagram-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding: 4px 10px;
+      background: rgba(0, 210, 255, 0.08);
+      border-radius: 12px;
+      border: 1px solid rgba(0, 210, 255, 0.25);
+    }
+
+    .instagram-channel {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /*  */
+    .cyan-glow-text {
+      color: #ffffff;
+      text-shadow: 0 0 6px #00d2ff, 0 0 12px #00d2ff;
+    }
+
+    .instagram-icon {
+      width: 22px;
+      height: 22px;
+      background: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: -2px -2px 6px #00d2ff, 2px 2px 6px #3a86ff;
+      font-size: 11px;
+      color: #fff;
+    }
+
+    /*  */
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #00d2ff;
+    }
+
+    .live-tag {
+      background: linear-gradient(45deg, #00d2ff, #3a86ff);
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 8px rgba(0, 210, 255, 0.8);
+    }
+
+    /*  */
+    .song-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      border: 1px solid rgba(0, 210, 255, 0.2);
+    }
+
+    .song-info-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .custom-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #00d2ff;
+      box-shadow: 0 0 6px rgba(0, 210, 255, 0.6);
+    }
+
+    .song-info h2 {
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .song-info p {
+      font-size: 10px;
+      color: #8da9c4;
+      font-weight: 500;
+    }
+
+    /* 📊  */
+    .eq-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 16px;
+    }
+
+    .eq-bar {
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(to top, #3a86ff, #00d2ff);
+      border-radius: 3px;
+      transform-origin: bottom;
+      transform: scaleY(0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .eq-container.playing .eq-bar:nth-child(1) { animation: eqBounce 0.6s infinite alternate ease-in-out; }
+    .eq-container.playing .eq-bar:nth-child(2) { animation: eqBounce 0.4s infinite alternate ease-in-out 0.1s; }
+    .eq-container.playing .eq-bar:nth-child(3) { animation: eqBounce 0.7s infinite alternate ease-in-out 0.2s; }
+    .eq-container.playing .eq-bar:nth-child(4) { animation: eqBounce 0.5s infinite alternate ease-in-out 0.15s; }
+    .eq-container.playing .eq-bar:nth-child(5) { animation: eqBounce 0.8s infinite alternate ease-in-out 0.05s; }
+
+    @keyframes eqBounce {
+      0% { transform: scaleY(0.15); }
+      100% { transform: scaleY(1); }
+    }
+
+    /* 🕒 */
+    .datetime-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .time-display {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 6px #00d2ff;
+      font-family: monospace;
+    }
+
+    .date-display {
+      font-size: 9px;
+      color: #8da9c4;
+    }
+
+       /* 🎬  */
+    .video-display-area {
+      flex: 1;
+      position: relative;
+      width: 100%;
+      min-height: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 4px 0 8px 0;
+      border: 1px solid rgba(0, 210, 255, 0.35);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+      background: #050508;
+    }
+
+    .video-display-area video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+    /* Controls บาร์ควบคุม */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: rgba(11, 19, 43, 0.85);
+      padding: 8px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(0, 210, 255, 0.3);
+    }
+
+    .progress-bar-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      color: #8da9c4;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 5px;
+      accent-color: #00d2ff;
+      cursor: pointer;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+    }
+
+    .btn-control {
+      background: none;
+      border: none;
+      color: #d1d5db;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-control:hover {
+      color: #00d2ff;
+      transform: scale(1.15);
+      text-shadow: 0 0 8px #00d2ff;
+    }
+
+    .btn-play {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(45deg, #00d2ff, #3a86ff);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 210, 255, 0.6);
+    }
+
+    .btn-play:hover {
+      transform: scale(1.08);
+      box-shadow: 0 4px 18px rgba(0, 210, 255, 0.9);
+    }
+#open-chat-btn { 
+    color: #00ffcc !important; 
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.8); 
+    transition: all 0.3s ease;
+}
+#open-chat-btn:hover { 
+    color: #ffffff !important;
+    text-shadow: 0 0 15px #00ffcc;
+    transform: scale(1.1); 
+}
+    /* 🎛️ CSS ΓΙΑ ΤΗΝ ΟΡΘΙΑ ΜΠΑΡΑ ΕΝΤΑΣΗΣ ΤΟΥ ΒΙΝΤΕΟ (HOVER EFFECT) */
+    .video-volume-wrapper {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        z-index: 100;
+    }
+    
+    .video-volume-slider-container {
+        display: none;
+        background: rgba(0, 0, 0, 0.85);
+        border: 1px solid #00ffcc;
+        border-radius: 6px;
+        padding: 10px 5px;
+        margin-top: 5px;
+        height: 80px;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+    }
+    
+    /* Όταν πηγαίνουμε το ποντίκι στο Wrapper, εμφανίζεται η όρθια μπάρα! */
+    .video-volume-wrapper:hover .video-volume-slider-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .video-volume-slider {
+        writing-mode: vertical-lr; /* 🔥 Στρέφει τη μπάρα σε ΟΡΘΙΑ διάταξη! */
+        direction: rtl;
+        width: 15px;
+        height: 70px;
+        accent-color: #00ffcc;
+        cursor: pointer;
+        margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="player-card">
+    
+    <!--  -->
+    <div class="instagram-badge">
+      <div class="instagram-channel">
+        <!-- 📸 ΤΟ ΝΕΟ ΖΩΝΤΑΝΟ LINK ΓΙΑ ΤΟ INSTAGRAM (ΑΝΟΙΓΕΙ ΣΕ ΞΕΧΩΡΙΣΤΗ ΣΕΛΙΔΑ) -->
+      <p class="social-text">
+        <a href="https://instagram.com" target="_blank" style="color: #ff007f; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.2s;">
+                  <!-- ΤΟ ΕΙΚΟΝΙΔΙΟ ΤΟΥ INSTAGRAM ΜΕ ΣΤΡΟΓΓΥΛΟ CYAN-GLOW ΚΥΚΛΟ -->
+        <i class="fab fa-instagram" style="font-size: 16px; color: #ff007f; background: rgba(0, 255, 204, 0.05); border: 2px solid #00ffcc; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 0 12px  #00d2ff; inset 0 0 6px #00ffcc; transition: all 0.3s ease;"></i>
+
+        </a>
+      </p>
+        <span class="cyan-glow-text">ᴾᵐPanagiotis🇬🇷</span>
+      </div><!-- ΚΟΥΜΠΙ ΑΝΤΙΓΡΑΦΗΣ LINK ΓΙΑ ΚΟΙΝΟΠΟΙΗΣΗ 🔗 -->
+      <center style="margin-top: 10px;">
+        <button onclick="copyRadioLink()" title="Αντιγραφή Συνδέσμου" style="background: none; border: 1px solid var(--accent-color); color: var(--accent-color); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);"><i class="fas fa-copy"></i> <span id="share-btn-text">Share</span></button>
+      </center>
+      <div class="status-icons">
+        <i class="fa-solid fa-signal"></i>
+        <i class="fa-solid fa-wifi"></i>
+        <i class="fa-solid fa-battery-full"></i>       
+
+        <div class="live-tag">LIVE</div>
+      </div>
+    </div>
+
+    <!--  -->
+    <div class="song-header">
+      <div class="song-info-container">
+        <img src="https://xatimg.com/image/wN0GwHPQejWO.png" alt="Logo" class="custom-logo" id="song-logo">
+        <div class="song-info">
+          <h2 class="cyan-glow-text" id="song-title">ᴾᵐPanagiotis🇬🇷</h2>
+          <p id="artist-name">ᴾᴶLadч Punᵏᵐ</p>
+        </div>
+      </div>
+
+      <!--  -->
+      <div class="eq-container" id="eq-visualizer">
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+        <div class="eq-bar"></div>
+      </div>
+
+      <!-- -->
+      <div class="datetime-container">
+        <div class="time-display" id="clock-time">00:00:00</div>
+        <div class="date-display" id="clock-date">00/00/0000</div>
+      </div>
+    </div>
+
+    <!-- 🎬  -->
+        <div class="video-display-area" style="position: relative;">
+      <!-- 1. Προσθέτουμε το poster="..." με το λινκ της φωτογραφίας σας -->
+      <video id="bg-video" autoplay loop muted playsinline poster="https://xatimg.com/image/wN0GwHPQejWO.png" style="width: 100%; height: 100%; object-fit: cover;"></video>
+ 
+<div id="mp3-cover-box" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: cover; background-position: center; display: none; z-index: 2;"></div>
+     
+      <!-- 2. ΤΟ ΜΙΚΡΟ ΚΟΥΜΠΑΚΙ ΗΧΟΥ ΣΤΗΝ ΠΑΝΩ ΑΡΙΣΤΕΡΗ ΓΩΝΙΑ -->
+          <!-- 🎛️ ΝΕΟ ΣΥΣΤΗΜΑ ΗΧΕΙΟΥ ΜΕ ΟΡΘΙΑ ΜΠΑΡΑ ΕΝΤΑΣΗΣ ΓΙΑ ΤΟ ΒΙΝΤΕΟ -->
+    <div class="video-volume-wrapper">
+      <button id="video-mute-btn" onclick="toggleVideoSound()" style="background: rgba(0,0,0,0.6); color: #00ffcc; border: 1px solid #00ffcc; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; box-shadow: 0 0 5px rgba(0,255,204,0.4);"><i id="video-mute-icon" class="fas fa-volume-mute"></i></button>
+      
+      <div class="video-volume-slider-container">
+        <input type="range" id="video-volume-bar" class="video-volume-slider" min="0" max="1" step="0.01" value="0">
+      </div>
+    </div>
+
+<!-- ΤΟ ΚΡΥΦΟ ΠΛΑΙΣΙΟ ΤΟΥ CHAT ΜΕ ΑΔΕΙΑ ΜΙΚΡΟΦΩΝΟΥ 🎙️ -->
+        <iframe id="embedded-chat" src="//choises.github.io/i/g" allow="microphone; microphone *" scrolling="no" style="display: block; width: 100%; height: 100%; min-height: 220px; max-height: 100%; border: none; border-radius: 10px; background: transparent; overflow: hidden; box-sizing: border-box; position: absolute; top: 0; left: 0; z-index: 3; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;"></iframe>
+
+ </div>
+                 <!-- 🎶 ΟΛΟΚΛΗΡΩΜΕΝΟ ΗΜΙΔΙΑΦΑΝΟ ΠΛΑΙΣΙΟ ΛΙΣΤΑΣ (GLASS EFFECT) -->
+    <div id="embedded-playlist" style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 10px; background: rgba(20, 24, 31, 0.0) !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-sizing: border-box; padding: 15px; overflow-y: auto; z-index: 999999 !important; border: 1px solid rgba(255, 255, 255, 0.08); pointer-events: auto;">
+
+           <!-- Ο ΤΙΤΛΟΣ ΜΑΖΙ ΜΕ ΤΟ ΚΟΚΚΙΝΟ ΚΟΥΜΠΙ ΚΛΕΙΣΙΜΑΤΟΣ (X) -->
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2c3545; padding-bottom: 5px; margin-bottom: 15px;">
+        <span style="color: #00ffcc; font-size: 16px; font-weight: bold;">🎵 Λίστα Τραγουδιών</span>
+                <!-- 🔥 ΔΙΟΡΘΩΣΗ: Το "Χ" καλεί πλέον την closePlaylist() για να κλείνει ακαριαία! -->
+        <button onclick="closePlaylist()" style="background: #c0392b; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; position: relative; z-index: 100001; pointer-events: auto;">X</button>
+
+
+      </div>
+   
+           <!-- Τα τραγούδια της λίστας συνδεδεμένα με τον μηχανισμό on-demand -->
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <button id="playlist-item-0" onclick="playOnDemand(0)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎵 Τραγούδι 1 - Καλλιτέχνης 1 (MP3)</button>
+        <button id="playlist-item-1" onclick="playOnDemand(1)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎵 Τραγούδι 2 - Καλλιτέχνης 2 (MP3)</button>
+        <button id="playlist-item-2" onclick="playOnDemand(2)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
+        <button id="playlist-item-3"  onclick="playOnDemand(3)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
+         <button id="playlist-item-4" onclick="playOnDemand(4)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
+        <button id="playlist-item-5" onclick="playOnDemand(5)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
+        <button id="playlist-item-6" onclick="playOnDemand(6)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
+      </div>
+
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      
+<!-- ΝΕΑ ΜΠΑΡΑ ΕΝΤΑΣΗΣ ΗΧΟΥ 🔊 -->
+<div class="volume-container" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin: 15px 0;">
+    <i class="fas fa-volume-down" style="color: #00ffcc; text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);"></i>
+    <!-- value="0.5" σημαίνει έναρξη ακριβώς στο 50% -->
+    <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="0.5" style="width: 100px; accent-color: #00ffcc; cursor: pointer;">
+    <i class="fas fa-volume-up" style="color: #00ffcc; text-shadow: 0 0 5px rgba(0, 255, 204, 0.5);"></i>
+</div>
+
+            <!-- ΚΟΥΜΠΙΑ ΕΛΕΓΧΟΥ: ΜΟΝΟΡΟΦΗ ΔΙΑΤΑΞΗ ΜΕ ΤΑ ΧΡΩΜΑΤΑ ΑΝΑΜΕΣΑ ΣΕ PLAY ΚΑΙ CHAT -->
+      <div class="buttons" style="position: relative; display: flex; justify-content: center; align-items: center; margin: -15px auto; width: 100%; min-height: 0px;">
+        
+<button class="control-btn" id="prev-track" onclick="togglePlaylistView()" title="Λίστα Τραγουδιών" style="position: absolute; left: 10px; border: none; background: none; color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.8); cursor: pointer;"><i class="fas fa-list" style="font-size: 20px;"></i></button>
+
+        <button class="btn-control btn-play" id="play-btn"><i class="fa-solid fa-play" id="play-icon"></i></button>
+        <button class="btn-control" id="next-track" title="Choices"><i class=""></i></button>
+ <button class="control-btn" id="open-chat-btn" onclick="toggleChatView()" title="Live Chat" style="position: absolute; right: 10px; border: none; background: none; color: #00ffcc; text-shadow: 0 0 10px rgba(0, 255, 204, 0.8); cursor: pointer;"><i class="far fa-comment" style="font-size: 20px;"></i></button>
+        <!-- 🎨 ΤΑ 5 ΜΙΚΡΑ ΚΟΥΜΠΑΚΙΑ ΧΡΩΜΑΤΩΝ (ΜΕ ΤΟ ΔΙΚΟ ΣΑΣ ΗΛΕΚΤΡΙΚΟ ΜΠΛΕ 1ο ΣΤΗ ΣΕΙΡΑ) -->
+        <div style="position: absolute; right: 40px; display: flex; gap: 5px; align-items: center; justify-content: center; min-height: 50px; z-index: 15;">
+          <!-- 1ο: Ηλεκτρικό Μπλε (Cyber Ocean) -->
+          <button onclick="changePlayerTheme('linear-gradient(135deg, #000c26 0%, #001a4d 100%)', 'linear-gradient(145deg, #00f0ff 0%, #0044ff 60%, #0000cc 100%)')" title="Cyber Ocean" style="background: linear-gradient(135deg, #00f0ff, #0044ff); border: 1px solid #ffffff; width: 15px; height: 15px; border-radius: 50%; cursor: pointer; padding: 0; transition: transform 0.2s; box-shadow: 0 0 6px rgba(0, 68, 255, 0.6);"></button>
+                              
+          <!-- 3ο: Βαθύ Μωβ (Neon Purple) -->
+          <button onclick="changePlayerTheme('linear-gradient(135deg, #14001a 0%, #290033 100%)', 'linear-gradient(145deg, #e000ff 0%, #8800ff 60%, #4b0099 100%)')" title="Neon Purple" style="background: linear-gradient(135deg, #e000ff, #8800ff); border: 1px solid #ffffff; width: 15px; height: 15px; border-radius: 50%; cursor: pointer; padding: 0; transition: transform 0.2s; box-shadow: 0 0 6px rgba(136, 0, 255, 0.6);"></button>
+          
+          <!-- 4ο: Φωσφορίζον Πράσινο (Lime Neon) -->
+          <button onclick="changePlayerTheme('linear-gradient(135deg, #051400 0%, #113300 100%)', 'linear-gradient(145deg, #66ff00 0%, #00e600 60%, #008800 100%)')" title="Lime Neon" style="background: linear-gradient(135deg, #66ff00, #00e600); border: 1px solid #ffffff; width: 15px; height: 15px; border-radius: 50%; cursor: pointer; padding: 0; transition: transform 0.2s; box-shadow: 0 0 6px rgba(0, 230, 0, 0.6);"></button>
+          
+          <!-- 5ο: Neon Φούξια (Cyber Pink) -->
+          <button onclick="changePlayerTheme('linear-gradient(135deg, #1a0010 0%, #3a0024 100%)', 'linear-gradient(145deg, #ff00a0 0%, #ff0066 60%, #a60042 100%)')" title="Cyber Pink" style="background: linear-gradient(135deg, #ff00a0, #ff0066); border: 1px solid #ffffff; width: 15px; height: 15px; border-radius: 50%; cursor: pointer; padding: 0; transition: transform 0.2s; box-shadow: 0 0 6px rgba(255, 0, 102, 0.6);"></button>
+        
+        </div>
+
+  <audio id="audio-player"></audio>
+
+  <script>
+       
+  
+    const tracksData = [
+      {
+        title: "ᴾᵐPanagiotis🇬🇷",
+        artist: "Online Radio",
+        audioSrc: "https://stream.rcast.net/200586"
+      }
+    ];
+
+    let currentTrackIndex = 0;
+
+    const audio = document.getElementById('audio-player');
+    const playBtn = document.getElementById('play-btn');
+    const playIcon = document.getElementById('play-icon');
+    const progress = document.getElementById('progress');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+    const eqVisualizer = document.getElementById('eq-visualizer');
+
+    const songTitle = document.getElementById('song-title');
+    const artistName = document.getElementById('artist-name');
+// 3. Η ΔΙΚΗ ΣΑΣ ΛΙΣΤΑ ΤΡΑΓΟΥΔΙΩΝ (ON-DEMAND PLAYLIST)
+  // Μπορείτε να βάλετε είτε αρχεία ήχου .mp3 είτε αρχεία βίντεο .mp4!
+  const onDemandTracks = [
+    {
+      title: "Όνομα Τραγουδιού 1",
+      artist: "Καλλιτέχνης 1",
+      fileUrl: "https://ia600607.us.archive.org/9/items/latin-2025/Latin2025.mp3",
+      coverUrl: "https://xatimg.com/image/rbA6aOxjB0au.png", // <- ΦΩΤΟΓΡΑΦΙΑ ΚΑΛΛΙΤΕΧΝΗ 1
+      isTextOnly: true
+    },
+    {
+      title: "Όνομα Τραγουδιού 2",
+      artist: "Καλλιτέχνης 2",
+      fileUrl: "https://ia800706.us.archive.org/19/items/classic-rock_202607/Classic%20Rock.mp3",
+      coverUrl: "https://xatimg.com/image/9kFArAT470H7.jpg", // <- ΦΩΤΟΓΡΑΦΙΑ ΚΑΛΛΙΤΕΧΝΗ 2
+      isTextOnly: true
+    },
+    {
+      title: "Βίντεο Κλιπ Δοκιμή",
+      artist: "Καλλιτέχνης Βίντεο",
+      fileUrl: "https://choises.github.io/vy/GT.mp4",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    },
+    {
+      title: "Βίντεο Κλιπ Δοκιμή",
+      artist: "Καλλιτέχνης Βίντεο",
+      fileUrl: "https://choises.github.io/wv/sm.mp4",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    },
+    {
+      title: "Βίντεο Κλιπ Δοκιμή",
+      artist: "Καλλιτέχνης Βίντεο",
+      fileUrl: "https://choises.github.io/pj/ds.mp4",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    },
+    {
+      title: "Βίντεο Κλιπ Δοκιμή",
+      artist: "Καλλιτέχνης Βίντεο",
+      fileUrl: "https://choises.github.io/mn/cb.mp4",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    },
+    {
+      title: "Βίντεο Κλιπ Δοκιμή",
+      artist: "Καλλιτέχνης Βίντεο",
+      fileUrl: "https://alphatvlive2.siliconweb.com/alphatvlive/live_abr/playlist.m3u8",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    }
+  ];
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const year = now.getFullYear();
+
+      document.getElementById('clock-time').innerText = `${hours}:${minutes}:${seconds}`;
+      document.getElementById('clock-date').innerText = `${day}/${month}/${year}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function loadTrack(index) {
+      currentTrackIndex = index;
+      const track = tracksData[currentTrackIndex];
+
+      songTitle.innerText = track.title;
+      artistName.innerText = track.artist;
+      audio.src = track.audioSrc;
+    }
+
+     audio.addEventListener('timeupdate', () => {
+      const currentTime = audio.currentTime;
+      if (audio.duration) {
+        progress.value = (currentTime / audio.duration) * 100 || 0;
+        durationEl.innerText = formatTime(audio.duration);
+      } else {
+        progress.value = 100;
+        durationEl.innerText = "LIVE";
+      }
+      currentTimeEl.innerText = formatTime(currentTime);
+    });
+
+        // ΖΩΝΤΑΝΗ ΡΟΗ: Φορτώνει πάντα το "Τώρα" χωρίς να κρατάει παλιά μνήμη!
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        // Ξαναφορτώνουμε το live link από την αρχή για να πιάσει το παρόν ακαριαία
+        const track = tracksData[currentTrackIndex];
+        audio.src = track.audioSrc;
+        audio.load();
+        
+        audio.play().catch(err => console.log("Χρειάζεται κλικ:", err));
+        playIcon.className = 'fa-solid fa-pause';
+        if (eqVisualizer) eqVisualizer.classList.add('playing');
+      } else {
+        // Όταν πατάμε Pause, σταματάμε τον ήχο και αδειάζουμε τελείως το Buffer
+        audio.pause();
+        audio.src = ""; 
+        
+        playIcon.className = 'fa-solid fa-play';
+        if (eqVisualizer) eqVisualizer.classList.remove('playing');
+      }
+    });
+
+    document.getElementById('next-track').addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex + 1) % tracksData.length;
+      loadTrack(currentTrackIndex);
+      audio.play();
+      playIcon.className = 'fa-solid fa-pause';
+      eqVisualizer.classList.add('playing');
+    });
+
+    document.getElementById('prev-track').addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex - 1 + tracksData.length) % tracksData.length;
+      loadTrack(currentTrackIndex);
+      audio.play();
+      playIcon.className = 'fa-solid fa-pause';
+      eqVisualizer.classList.add('playing');
+    });
+
+    loadTrack(0);
+
+       // 💬 Εναλλαγή Οθόνης Chat με έλεγχο Opacity για να μην πέφτει μαύρο στο Live Βίντεο!
+    function toggleChatView() {
+        const chatFrame = document.getElementById('embedded-chat');
+        const playlistPanel = document.getElementById('embedded-playlist');
+
+        if (!chatFrame) return;
+
+        if (chatFrame.style.opacity === "0" || chatFrame.style.opacity === "") {
+            chatFrame.style.opacity = "1";
+            chatFrame.style.pointerEvents = "auto"; 
+            if (playlistPanel) playlistPanel.style.display = 'none';
+            document.getElementById('open-chat-btn').innerHTML = '<i class="fas fa-music"></i>';
+        } else {
+            chatFrame.style.opacity = "0";
+            chatFrame.style.pointerEvents = "none"; 
+            document.getElementById('open-chat-btn').innerHTML = '<i class="far fa-comment"></i>';
+        }
+    }
+
+    const volumeBar = document.getElementById('volume-bar');
+
+    if (audio) {
+        audio.volume = 0.5;
+    }
+
+    if (volumeBar) {
+        volumeBar.addEventListener('input', (e) => {
+            if (audio) { audio.volume = e.target.value; }
+        });
+    }
+
+    // 📺 Ο ΜΗΧΑΝΙΣΜΟΣ ΠΟΥ ΠΑΙΖΕΙ ΚΑΙ .M3U8 ΚΑΙ .MP4 ΒΙΝΤΕΟ!
+    const videoElement = document.getElementById('bg-video');
+    const videoSource = "https://eco.streams.ovh:8081/barazatv/index.m3u8"; 
+    let hls = null;
+
+    function initHLS() {
+      if (videoElement) {
+        if (videoSource.endsWith('.m3u8')) {
+          if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+            hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60, maxBufferSize: 30 * 1000 * 1000, enableWorker: true, lowLatencyMode: false });
+            hls.loadSource(videoSource); hls.attachMedia(videoElement);
+          } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            videoElement.src = videoSource;
+          }
+        } else {
+          videoElement.src = videoSource;
+        }
+      }
+    }
+    initHLS();
+
+       function toggleVideoSound() {
+        const vid = document.getElementById('bg-video');
+        const muteIcon = document.getElementById('video-mute-icon');
+        const videoVolBar = document.getElementById('video-volume-bar');
+        
+        if (vid) {
+            if (vid.muted) { 
+                vid.muted = false; 
+                vid.volume = 1.0; // Βάζει τον ήχο στο Max
+                if (muteIcon) muteIcon.className = "fas fa-volume-up"; 
+                if (videoVolBar) videoVolBar.value = 1.0; // 🔥 ΚΛΕΙΔΙ: Σπρώχνει την όρθια μπάρα στο τέρμα (1.0) οπτικά!
+            } else { 
+                vid.muted = true; 
+                vid.volume = 0; // Μηδενίζει τον ήχο
+                if (muteIcon) muteIcon.className = "fas fa-volume-mute"; 
+                if (videoVolBar) videoVolBar.value = 0; // 🔥 ΚΛΕΙΔΙ: Κατεβάζει την όρθια μπάρα στο μηδέν (0) οπτικά!
+            }
+        }
+    }
+
+                   // 🎶 Ανοιγοκλείσιμο Λίστας Τραγουδιών: Το βίντεο παραμένει ανοιχτό και φαίνεται από πίσω!
+    function togglePlaylistView() {
+      const playlistPanel = document.getElementById('embedded-playlist');
+      const chatFrame = document.getElementById('embedded-chat');
+      if (!playlistPanel) return;
+
+      if (playlistPanel.style.display === 'none' || playlistPanel.style.display === '') {
+        playlistPanel.style.display = 'block';
+        playlistPanel.style.pointerEvents = 'auto'; 
+        
+        // 🔥 ΚΛΕΙΔΙ: Αφαιρέσαμε την εντολή που έκρυβε το βίντεο! Τώρα το αφήνουμε ανοιχτό!
+        
+        if (chatFrame) {
+            chatFrame.style.display = 'none';
+            chatFrame.style.opacity = "0";
+            chatFrame.style.pointerEvents = "none";
+        }
+      } else {
+        playlistPanel.style.display = 'none';
+        playlistPanel.style.pointerEvents = 'none';
+        if (videoElement) videoElement.style.display = 'block';
+        
+        if (chatFrame) {
+            chatFrame.style.display = 'block';
+        }
+      }
+    }
+
+
+          // ⚡ On-Demand Αναπαραγωγή: ΜΕ 100% NEON ΦΩΤΙΣΜΟ ΚΑΙ ΣΥΓΧΡΟΝΙΣΜΟ ΜΠΑΡΑΣ ΣΤΟ ΜΑΞ!
+    function playOnDemand(index) {
+        const track = onDemandTracks[index];
+        if (!track) return;
+
+        // 🌟 Α) ΦΩΤΙΣΜΟΣ ENERGY: Διατηρεί το Neon χρώμα στο κομμάτι που παίζει!
+        for (let i = 0; i < onDemandTracks.length; i++) {
+            const btn = document.getElementById(`playlist-item-${i}`);
+            if (btn) {
+                btn.style.background = "#1e2530";
+                btn.style.color = "#fff";
+                btn.style.borderColor = "#2c3545";
+                btn.style.boxShadow = "none";
+            }
+        }
+        const activeBtn = document.getElementById(`playlist-item-${index}`);
+        if (activeBtn) {
+            activeBtn.style.background = "rgba(0, 255, 204, 0.1)";
+            activeBtn.style.color = "#00ffcc";
+            activeBtn.style.borderColor = "#00ffcc";
+            activeBtn.style.boxShadow = "0 0 10px rgba(0, 255, 204, 0.4)";
+        }
+
+        // Β) ΕΚΤΕΛΕΣΗ ΑΝΑΠΑΡΑΓΩΓΗΣ & ΣΥΓΧΡΟΝΙΣΜΟΣ ΗΧΟΥ
+        audio.pause(); audio.src = ""; isPlaying = false;
+        playIcon.className = "fas fa-play";
+        document.getElementById('song-title').innerText = track.title;
+        document.getElementById('artist-name').innerText = track.artist;
+
+        if (hls) { hls.detachMedia(); }
+        const coverBox = document.getElementById('mp3-cover-box');
+
+        if (track.isTextOnly) {
+          audio.src = track.fileUrl; audio.load(); audio.play().catch(e => console.log(e));
+          if (videoElement) videoElement.style.display = 'block'; 
+          if (coverBox && track.coverUrl) {
+            coverBox.style.backgroundImage = `url('${track.coverUrl}')`;
+            coverBox.style.display = 'block';
+          }
+          if (videoElement && videoSource.endsWith('.m3u8')) { initHLS(); }
+        } else {
+          if (coverBox) coverBox.style.display = 'none'; 
+          if (videoElement) {
+            videoElement.style.display = 'block';
+            videoElement.src = track.fileUrl; 
+            videoElement.load(); 
+            
+            // 🔥 ΚΛΕΙΔΙ: Το βίντεο ξεκινάει με ήχο κανονικά στο ΜΑΞ!
+            videoElement.muted = false;
+            videoElement.volume = 1.0;
+            document.getElementById('video-mute-icon').className = "fas fa-volume-up";
+            
+            // 🔥 ΚΛΕΙΔΙ: Σπρώχνουμε και την όρθια μπάρα οπτικά στο τέρμα (1.0) για να συμφωνεί!
+            const videoVolBar = document.getElementById('video-volume-bar');
+            if (videoVolBar) videoVolBar.value = 1.0;
+
+            videoElement.play().catch(e => console.log(e));
+            videoElement.addEventListener('ended', returnToLiveStream, { once: true });
+          }
+        }
+        
+        const playlistPanel = document.getElementById('embedded-playlist');
+        if (playlistPanel) playlistPanel.style.display = 'none';
+
+        const chatFrame = document.getElementById('embedded-chat');
+        if (chatFrame) chatFrame.style.display = 'block';
+    }
+
+        // 🌟 Καθαρισμός του Neon φωτισμού της λίστας κατά την επιστροφή στο Live
+        for (let i = 0; i < onDemandTracks.length; i++) {
+            const btn = document.getElementById(`playlist-item-${i}`);
+            if (btn) {
+                btn.style.background = "#1e2530";
+                btn.style.color = "#fff";
+                btn.style.borderColor = "#2c3545";
+                btn.style.boxShadow = "none";
+            }
+        }
+
+
+                    function returnToLiveStream() {
+        document.getElementById('song-title').innerText = "📻 Panagiotis Live";
+        document.getElementById('artist-name').innerText = "PM Panagiotis & PJ Lady Punk";
+
+        const coverBox = document.getElementById('mp3-cover-box');
+        if (coverBox) coverBox.style.display = 'none';
+
+        if (videoElement) {
+          videoElement.style.display = 'block';
+          videoElement.muted = true;
+          videoElement.volume = 0; // Μηδενισμός έντασης βίντεο στο Live
+          document.getElementById('video-mute-icon').className = "fas fa-volume-mute";
+          
+          // 🔥 ΚΛΕΙΔΙ: Κατεβάζει την όρθια μπάρα στο μηδέν κατά την επιστροφή στο Live
+          const videoVolBar = document.getElementById('video-volume-bar');
+          if (videoVolBar) videoVolBar.value = 0;
+
+          initHLS();
+          videoElement.play().catch(e => console.log(e));
+        }
+
+         audio.src = tracksData[0].audioSrc; 
+    audio.load();
+        audio.play().catch(e => console.log(e));
+        playIcon.className = "fas fa-pause";
+        isPlaying = true;
+    }
+
+    function copyRadioLink() {
+      const currentLink = window.location.href;
+      const btnText = document.getElementById('share-btn-text');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentLink).then(() => { showSuccessMessage(btnText); }).catch(() => { fallbackCopy(currentLink, btnText); });
+      } else { fallbackCopy(currentLink, btnText); }
+    }
+
+    function fallbackCopy(text, element) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text; textArea.style.position = "fixed"; document.body.appendChild(textArea);
+      textArea.focus(); textArea.select();
+      try { document.execCommand('copy'); showSuccessMessage(element); } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    function showSuccessMessage(element) {
+      if (element) { element.innerText = "Αντιγράφηκε! ✅"; setTimeout(() => { element.innerText = "Share"; }, 2000); }
+    }              
+       // 🎨 Απόλυτη Λειτουργία που αλλάζει live το Theme σε ΟΛΑ τα εσωτερικά κουτιά (Play/Volume/Chat/Controls)!
+    function changePlayerTheme(bodyGradient, containerGradient) {
+        // 1. Αλλάζουμε το gradient έξω από τον Player (body)
+        document.body.style.setProperty('background', bodyGradient, 'important');
+        
+        // 2. Εντοπίζουμε το κεντρικό κουτί του Player
+        const playerBox = document.querySelector('.container') || document.querySelector('.player-container') || document.body.querySelector('div');
+        if (playerBox) {
+            playerBox.style.setProperty('background', containerGradient, 'important');
+        }
+
+        // 3. 🔥 ΚΛΕΙΔΙ: Εντοπίζουμε live το εσωτερικό κουτί των controls (Play, Volume, Chat, Λίστα) και του αλλάζουμε το Theme!
+        const controlsBox = document.querySelector('.controls') || document.querySelector('.buttons') || document.querySelector('.volume-container');
+        if (controlsBox) {
+            controlsBox.style.setProperty('background', containerGradient, 'important');
+            controlsBox.style.setProperty('background-color', 'transparent', 'important'); // Το κάνουμε διάφανο για να πάρει το σωστό gradient!
+        }
+        
+        // 4. Εξασφαλίζουμε ότι και τα υπόλοιπα γειτονικά εσωτερικά div (όπως η κοινωνική δικτύωση) θα εναρμονιστούν
+        const socialBox = document.querySelector('.social-box');
+        if (socialBox) {
+            socialBox.style.setProperty('background', 'transparent', 'important');
+        }
+    }
+   // 📺 Live Ρύθμιση της Έντασης του Κεντρικού Βίντεο από την Όρθια Μπάρα
+    document.addEventListener("DOMContentLoaded", () => {
+        const videoVolBar = document.getElementById('video-volume-bar');
+        if (videoVolBar && videoElement) {
+            videoVolBar.addEventListener('input', (e) => {
+                const vol = e.target.value;
+                videoElement.volume = vol;
+                
+                const muteIcon = document.getElementById('video-mute-icon');
+                if (vol > 0) {
+                    videoElement.muted = false;
+                    if (muteIcon) muteIcon.className = "fas fa-volume-up";
+                } else {
+                    videoElement.muted = true;
+                    if (muteIcon) muteIcon.className = "fas fa-volume-mute";
+                }
+            });
+        }
+    });
+    // 🔄 ΟΛΟΚΑΙΝΟΥΡΓΙΑ ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΤΟ ΚΟΥΜΠΙ "Χ" - ΚΛΕΙΝΕΙ ΑΚΑΡΙΑΙΑ ΤΗ ΛΙΣΤΑ!
+    function closePlaylistAndReturn() {
+        const playlistPanel = document.getElementById('embedded-playlist');
+        const chatFrame = document.getElementById('embedded-chat');
+        
+        // 🔓 Κλείνουμε το παράθυρο της λίστας
+        if (playlistPanel) {
+            playlistPanel.style.display = 'none';
+        }
+        
+        // 📺 Επαναφέρουμε το Βίντεο και το Chat στην επιφάνεια
+        if (videoElement) {
+            videoElement.style.display = 'block';
+        }
+        if (chatFrame) {
+            chatFrame.style.display = 'block';
+        }
+    }
+
+    // Για ασφάλεια, αν η HTML καλέσει το όνομα closePlaylist, εκτελείται η ίδια λειτουργία
+    function closePlaylist() {
+        closePlaylistAndReturn();
+    }
+
+</script>
+ <script>
+  function disableselect(e){
+     return false
+  }
+
+  function reEnable(){
+     return true
+  }
+
+//if IE4+
+   document.oncontextmenu=new Function ("return false")
+//if NS6
+  if (window.sidebar){
+     document.onmousedown=disableselect
+     document.onclick=reEnable
+}  
+ </script>
+</body></html>         
+</body>
+</html>
