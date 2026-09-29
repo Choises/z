@@ -595,18 +595,27 @@
     });
 
         // ΖΩΝΤΑΝΗ ΡΟΗ: Φορτώνει πάντα το "Τώρα" χωρίς να κρατάει παλιά μνήμη!
+        // ΖΩΝΤΑΝΗ ΡΟΗ: Με έξυπνη επιστροφή στο αρχικό Live Βίντεο & Ήχο!
     playBtn.addEventListener('click', () => {
+      const eqVisualizer = document.getElementById('equalizer-visualizer') || document.querySelector('.eq-visualizer');
+
+      // 🔥 ΚΛΕΙΔΙ: Αν ΔΕΝ παίζει το Live (δηλαδή παίζει MP3/MP4 από τη λίστα), επιστρέφει ακαριαία στο Live!
+      if (!isPlayingLive) {
+        returnToLiveStream();
+        if (eqVisualizer) eqVisualizer.classList.add('playing');
+        return;
+      }
+
+      // ΚΑΝΟΝΙΚΟ PLAY / PAUSE ΤΗΣ ΖΩΝΤΑΝΗΣ ΡΟΗΣ
       if (audio.paused) {
-        // Ξαναφορτώνουμε το live link από την αρχή για να πιάσει το παρόν ακαριαία
         const track = tracksData[currentTrackIndex];
         audio.src = track.audioSrc;
         audio.load();
         
-        audio.play().catch(err => console.log("Χρειάζεται κλικ:", err));
+        audio.play().catch(err => console.log("Xρειάζεται κλικ:", err));
         playIcon.className = 'fa-solid fa-pause';
         if (eqVisualizer) eqVisualizer.classList.add('playing');
       } else {
-        // Όταν πατάμε Pause, σταματάμε τον ήχο και αδειάζουμε τελείως το Buffer
         audio.pause();
         audio.src = ""; 
         
@@ -614,6 +623,7 @@
         if (eqVisualizer) eqVisualizer.classList.remove('playing');
       }
     });
+
 
     document.getElementById('next-track').addEventListener('click', () => {
       currentTrackIndex = (currentTrackIndex + 1) % tracksData.length;
@@ -668,6 +678,7 @@
     const videoElement = document.getElementById('bg-video');
     const videoSource = "https://eco.streams.ovh:8081/barazatv/index.m3u8"; 
     let hls = null;
+    let isPlayingLive = true; // 🔥 ΚΛΕΙΔΙ: Ξεκινάει true επειδή στην αρχή παίζει το Live!
 
     function initHLS() {
       if (videoElement) {
@@ -738,6 +749,7 @@
     function playOnDemand(index) {
         const track = onDemandTracks[index];
         if (!track) return;
+        isPlayingLive = false; // 🔥 ΚΛΕΙΔΙ: Ενημερώνει τον player ότι παίζει κομμάτι από τη λίστα!
 
         // 🌟 Α) ΦΩΤΙΣΜΟΣ ENERGY: Διατηρεί το Neon χρώμα στο κομμάτι που παίζει!
         for (let i = 0; i < onDemandTracks.length; i++) {
@@ -814,8 +826,11 @@
         }
 
 
-                    function returnToLiveStream() {
-        document.getElementById('song-title').innerText = "📻 Panagiotis Live";
+                    function 
+
+returnToLiveStream() {
+         isPlayingLive = true; // 🔥 ΚΛΕΙΔΙ: Ενημερώνει τον player ότι επιστρέψαμε στη ζωντανή ροή!
+       document.getElementById('song-title').innerText = "📻 Panagiotis Live";
         document.getElementById('artist-name').innerText = "PM Panagiotis & PJ Lady Punk";
 
         const coverBox = document.getElementById('mp3-cover-box');
